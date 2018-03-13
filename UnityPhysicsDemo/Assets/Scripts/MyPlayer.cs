@@ -12,10 +12,16 @@ public class MyPlayer : MonoBehaviour {
 	private bool grounded = false;
 	Rigidbody RB;
 	public GameObject mycamera;
+    public RaycastHit Hit;
+    private bool Crouched;
+    private float yOffset;
 
 	void Awake()
 	{
+        Cursor.lockState = CursorLockMode.Locked;
 		RB = gameObject.GetComponent<Rigidbody>();
+        Crouched = false;
+        yOffset = 1.0f * 0.5f;
 	}
 
 	void FixedUpdate()
@@ -40,15 +46,65 @@ public class MyPlayer : MonoBehaviour {
 			velocityChange.y = 0;
 			RB.AddForce(velocityChange, ForceMode.VelocityChange);
 
-			// Jump
-			if (canJump && Input.GetButton("Jump"))
-			{
-				RB.velocity = new Vector3(velocity.x, CalculateJumpVerticalSpeed(), velocity.z);
-			}
-		}
+            Vector3 down = transform.TransformDirection(Vector3.down);
 
-		// We apply gravity manually for more tuning control
-		RB.AddForce(new Vector3(0, -gravity * RB.mass, 0));
+            if (Physics.Raycast(transform.position, down, out Hit, 1.5f))
+            {
+                // Jump
+                if (canJump && Input.GetButton("Jump"))
+                {
+                    RB.velocity = new Vector3(velocity.x, CalculateJumpVerticalSpeed(), velocity.z);
+                }
+            }
+
+            Vector3 up = transform.TransformDirection(Vector3.up);
+
+            if (Physics.Raycast(transform.position, up, out Hit, 1.0f))
+            {
+                if (Input.GetKeyDown(KeyCode.LeftControl) && !Crouched)
+                {
+                    Vector3 Scale = new Vector3(transform.localScale.x, 0.5f, transform.localScale.z);
+                    transform.localScale = Scale;
+                    Crouched = true;
+                    transform.position -= Vector3.up * yOffset;
+                }
+            }
+            else
+            {
+                if (Input.GetKeyDown(KeyCode.LeftControl))
+                {
+                    if (!Crouched)
+                    {
+                        Vector3 Scale = new Vector3(transform.localScale.x, 0.5f, transform.localScale.z);
+                        transform.localScale = Scale;
+                        Crouched = true;
+                        transform.position -= Vector3.up * yOffset;
+                    }
+                    else
+                    {
+                        Vector3 Scale = new Vector3(transform.localScale.x, 1.0f, transform.localScale.z);
+                        transform.localScale = Scale;
+                        Crouched = false;
+                        transform.position += Vector3.up * yOffset;
+                    }
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                Vector3 fwd = transform.TransformDirection(Vector3.forward);
+
+                if (Physics.Raycast(transform.position, fwd, out Hit, 2))
+                {
+                    //print("There is something in front of the object!");
+                    if(Hit.rigidbody)
+                        Hit.rigidbody.velocity = fwd * 10;
+                }
+            }
+        }
+
+        // We apply gravity manually for more tuning control
+        RB.AddForce(new Vector3(0, -gravity * RB.mass, 0));
 
 		grounded = false;
 	}

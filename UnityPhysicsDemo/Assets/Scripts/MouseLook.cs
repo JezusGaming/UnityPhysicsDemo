@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MouseLook : MonoBehaviour {
-	Rigidbody RB;
 	public enum RotationAxes { MouseXAndY = 0, MouseX = 1, MouseY = 2 }
 	public RotationAxes axes = RotationAxes.MouseXAndY;
 	public float sensitivityX = 15F;
@@ -19,7 +18,6 @@ public class MouseLook : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		RB = gameObject.GetComponent<Rigidbody>();
 		originalRotation = transform.localRotation;
 	}
 	
@@ -29,7 +27,7 @@ public class MouseLook : MonoBehaviour {
 		float x = MyPlayer.transform.position.x;
 		float y = MyPlayer.transform.position.y;
 		float z = MyPlayer.transform.position.z;
-		Vector3 DirsedPos = new Vector3(x, y + 0.5f, z);
+		Vector3 DirsedPos = new Vector3(x, y + 0.3f, z);
 		transform.position = DirsedPos;
 
 		if (axes == RotationAxes.MouseXAndY)
