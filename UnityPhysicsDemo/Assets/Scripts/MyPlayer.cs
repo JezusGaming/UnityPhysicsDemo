@@ -101,6 +101,17 @@ public class MyPlayer : MonoBehaviour {
                         Hit.rigidbody.velocity = fwd * 10;
                 }
             }
+            if (Input.GetMouseButtonDown(1))
+            {
+                Vector3 fwd = transform.TransformDirection(Vector3.forward);
+
+                if (Physics.Raycast(transform.position, fwd, out Hit, 2))
+                {
+                    //print("There is something in front of the object!");
+                    if (Hit.rigidbody)
+                        Hit.rigidbody.velocity = fwd * 20;
+                }
+            }
         }
 
         // We apply gravity manually for more tuning control
